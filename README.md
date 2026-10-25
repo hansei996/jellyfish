@@ -20,6 +20,24 @@ python jellyfish.py serve        # → http://127.0.0.1:8080
 上面这张图是 `python jellyfish.py card --out card.svg` 生成的 —— **一条命令，零依赖，不需要浏览器截图**。
 卡片上带日志尾哈希，可以对回它的一生。
 
+## 不想 clone？一行就能跑
+
+```bash
+curl -s https://raw.githubusercontent.com/hansei996/jellyfish/main/jellyfish.py | python - tick --times 30
+```
+
+实测（从 GitHub raw 拉 35 KB 直接喂给 python）：
+
+```text
+{"tick": 30, "energy": 0, "alive": false, "death_reason": "饿死：第 30 个 tick 能量归零", ...}
+```
+
+想看点得见的：先把文件存下来再 serve。
+
+```bash
+curl -sO https://raw.githubusercontent.com/hansei996/jellyfish/main/jellyfish.py
+python jellyfish.py serve
+```
 ## 屏幕上是什么
 
 ```text
