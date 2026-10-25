@@ -52,6 +52,8 @@ python jellyfish.py export --root demo --out life.html   # 单文件传记，双
 
 ## 换成你自己的水母
 
+完整三步走见 [`docs/EXTEND.md`](./docs/EXTEND.md)，可运行示例在 [`examples/`](./examples/)。
+
 改 `jellyfish/core.py` 里两个函数：
 
 ```python
@@ -59,7 +61,19 @@ def default_world(tick, seed=0):      # 它看到什么：天气、股价、你�
 def decide_with(state, world, roll, policy):   # 它怎么决定：LLM / 规则 / RL
 ```
 
-只要 `decide_with` 保持纯函数、随机值走参数，**你的水母也能被完整重放**。
+也可以**不改库**，直接传一个函数进去：
+
+```python
+def gambler(state, world, roll):
+    if world.get("food") and roll < 0.15:
+        return {"action": "eat", "reason": "赌徒：手气到了"}
+    return {"action": "move", "reason": "赌徒：下一格更好"}
+
+state, record = step(state, world, roll, gambler)
+```
+
+实测这只赌徒只能活 3 天（中位）——它在有吃的 85% 的时候选择继续走。
+只要保持纯函数，**你的水母也能被完整重放**。
 
 ## 开发
 

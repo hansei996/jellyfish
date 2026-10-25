@@ -123,9 +123,17 @@ def decide(state: dict, world: dict, roll: float) -> dict:
     return {"action": "idle", "reason": "暂时不动"}
 
 
-def step(state: dict, world: dict, roll: float, policy: str = "balanced") -> tuple[dict, dict]:
-    """返回 (新状态, 这一步的记录)。纯函数。"""
-    decision = decide_with(state, world, roll, policy)
+def step(state: dict, world: dict, roll: float, policy="balanced") -> tuple[dict, dict]:
+    """返回 (新状态, 这一步的记录)。纯函数。
+
+    policy 可以是内置名字（字符串），也可以是一个自定义函数：
+        decide(state, world, roll) -> {"action": ..., "reason": ...}
+    这让"换一种活法"不需要改库，只要传一个函数。
+    """
+    if callable(policy):
+        decision = policy(state, world, roll)
+    else:
+        decision = decide_with(state, world, roll, policy)
     new = json.loads(json.dumps(state))
     new["tick"] += 1
 
