@@ -726,6 +726,10 @@ def main(argv=None):
         name = argv[argv.index("--name") + 1]
     policy = argv[argv.index("--policy") + 1] if "--policy" in argv else "balanced"
     cmd = argv[0] if argv else "serve"
+    if cmd in ("--version", "version"):
+
+        print("jellyfish " + __version__)
+        return 0
 
     if cmd == "serve":
         port = int(argv[argv.index("--port") + 1]) if "--port" in argv else 8080

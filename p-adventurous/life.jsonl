@@ -1,5 +1,0 @@
-{"hash":"650514d18faf0055a21e81f337fae40f790e59ac9425966092322590691c7b86","kind":"tick","prev":null,"roll":0.0,"world":{"food":1}}
-{"hash":"32021662e10d635b59ddb4629f923eb72c8bd0e583e498715b5a92dd8201fbfa","kind":"tick","prev":"650514d18faf0055a21e81f337fae40f790e59ac9425966092322590691c7b86","roll":0.761,"world":{"food":0}}
-{"hash":"a59852b0f503881919273ca8c714d1e2de9e04e251810096bef6d7bd1335ff8a","kind":"tick","prev":"32021662e10d635b59ddb4629f923eb72c8bd0e583e498715b5a92dd8201fbfa","roll":0.522,"world":{"food":0}}
-{"hash":"1687b9b4da6f1b7a9de5a806656c5abb36b4ac4828511fbcdc81e0a67607e43a","kind":"tick","prev":"a59852b0f503881919273ca8c714d1e2de9e04e251810096bef6d7bd1335ff8a","roll":0.283,"world":{"food":0}}
-{"hash":"0c1772284a9852ef2418ce95a90af6e99d8c65de0dd0dc6ed8287bf0fbae149c","kind":"tick","prev":"1687b9b4da6f1b7a9de5a806656c5abb36b4ac4828511fbcdc81e0a67607e43a","roll":0.044,"world":{"food":0}}

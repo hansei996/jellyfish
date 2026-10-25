@@ -87,8 +87,9 @@ state, record = step(state, world, roll, gambler)
 ## 开发
 
 ```bash
-python -m pytest tests -q        # 26 passed，全部离线
+python -m pytest tests -q        # 39 passed，全部离线
 python tools/build_single.py     # 重新生成 jellyfish.py（CI 会校验它没被手改）
+python tools/preflight.py        # 推送前的四道闸门（我自己两次带着红测试推过，所以做成了脚本）
 ```
 
 克隆仓库后也可以直接用包跑（不用单文件）：
