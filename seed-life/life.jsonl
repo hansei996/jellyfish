@@ -1,0 +1,10 @@
+{"hash":"6aedf7e162c969a6d565f5965677f367d702e4dcbd00a9dbb0c52e637e7a1773","kind":"tick","prev":null,"roll":0.007,"world":{"food":1}}
+{"hash":"b5c5f7d349dd4f13e52acf0c01960802e5923a91679fd67e3f471b241d4c2eb8","kind":"tick","prev":"6aedf7e162c969a6d565f5965677f367d702e4dcbd00a9dbb0c52e637e7a1773","roll":0.768,"world":{"food":0}}
+{"hash":"d77d6d8ed162209f92d7c561e14a444c23623d2aaf609b1653a744e7f3d55ea1","kind":"tick","prev":"b5c5f7d349dd4f13e52acf0c01960802e5923a91679fd67e3f471b241d4c2eb8","roll":0.529,"world":{"food":0}}
+{"hash":"22ed5506af9d10a93bf53b6b91e134f4aac4281b29d007b0d9d78f92613bd410","kind":"tick","prev":"d77d6d8ed162209f92d7c561e14a444c23623d2aaf609b1653a744e7f3d55ea1","roll":0.29,"world":{"food":0}}
+{"hash":"bcdc362511f7a4b457a45f5cc9ca510e536bf8c9186a04824409edb7c5a09062","kind":"tick","prev":"22ed5506af9d10a93bf53b6b91e134f4aac4281b29d007b0d9d78f92613bd410","roll":0.051,"world":{"food":0}}
+{"hash":"d8b358a8afabe99a307ceeadf41fcf11245eed6af696c5b2713de83f60ad24a0","kind":"tick","prev":"bcdc362511f7a4b457a45f5cc9ca510e536bf8c9186a04824409edb7c5a09062","roll":0.812,"world":{"food":1}}
+{"hash":"a1efae372aad8f7b7f780ec19f102c1d551d06ae1d157a7bb0c0f42373c1af46","kind":"tick","prev":"d8b358a8afabe99a307ceeadf41fcf11245eed6af696c5b2713de83f60ad24a0","roll":0.573,"world":{"food":0}}
+{"hash":"b18b7d74cdd6ff150560d268e1d399d1b1c30c186f961d8b34342a7be2eaf1d1","kind":"tick","prev":"a1efae372aad8f7b7f780ec19f102c1d551d06ae1d157a7bb0c0f42373c1af46","roll":0.334,"world":{"food":1}}
+{"hash":"07e06d356b4e8e1d3e6081a1fed70499e16f29e0b518157abe526f5f5466bfc3","kind":"tick","prev":"b18b7d74cdd6ff150560d268e1d399d1b1c30c186f961d8b34342a7be2eaf1d1","roll":0.095,"world":{"food":0}}
+{"hash":"3e0269bb6ce6748e261eb79aaf2db812d6ba9f3fd3a85f7486880882ef0c217c","kind":"tick","prev":"07e06d356b4e8e1d3e6081a1fed70499e16f29e0b518157abe526f5f5466bfc3","roll":0.856,"world":{"food":0}}

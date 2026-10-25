@@ -45,6 +45,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
 </style></head><body><div class="wrap">
 <h1 id="title">一只水母</h1>
 <p class="sub">它会饿、会死。每一步都写进 append-only 日志，可以倒回去重看。</p>
+<p class="sub" id="seedline"></p>
 
 <div class="stage"><svg id="jelly" width="220" height="260" viewBox="0 0 220 260">
   <defs><radialGradient id="g" cx="50%" cy="40%" r="60%">
@@ -62,6 +63,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
   <button class="primary" onclick="tick(1)">过一天</button>
   <button onclick="tick(5)">过五天</button>
   <button onclick="revive()">救活它</button>
+<button onclick="newLife()">换一只（新种子）</button>
 </div>
 
 <table><thead><tr><th>第几天</th><th>看到</th><th>决定</th><th>为什么</th><th>体力</th><th>状态</th></tr></thead>
@@ -69,6 +71,8 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
 </div>
 <script>
 function render(d){
+  document.getElementById('seedline').textContent =
+    '种子 ' + d.seed + ' · 性格 ' + d.policy + ' · 同一个种子会得到完全相同的一生（可以把这个网址发给别人）';
   var s=d.state, alive=s.alive, e=s.energy;
   document.body.classList.toggle('dead', !alive);
   document.getElementById('title').textContent = d.name || '一只水母';
@@ -90,7 +94,18 @@ function render(d){
 function load(){ fetch('/api/state').then(r=>r.json()).then(render); }
 function tick(n){ fetch('/api/tick?n='+(n||1),{method:'POST'}).then(r=>r.json()).then(render); }
 function revive(){ fetch('/api/revive',{method:'POST'}).then(r=>r.json()).then(render); }
-load();
+function newLife(){
+  var seed = Math.floor(Math.random()*100000);
+  history.replaceState(null,'','?seed='+seed);
+  fetch('/api/new?seed='+seed,{method:'POST'}).then(r=>r.json()).then(render);
+}
+var params = new URLSearchParams(location.search);
+var wanted = params.get('seed');
+if (wanted !== null) {
+  fetch('/api/new?seed=' + encodeURIComponent(wanted), {method:'POST'}).then(r=>r.json()).then(render);
+} else {
+  load();
+}
 </script></body></html>"""
 
 
@@ -106,7 +121,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def _json(self):
-        return json.dumps({"name": self.life.name, "biography": self.life.biography(),
+        return json.dumps({"name": self.life.name, "seed": self.life.seed, "policy": str(self.life.policy),
+                           "biography": self.life.biography(),
                            "state": self.life.state(), "timeline": self.life.timeline()}, ensure_ascii=False)
 
     def do_GET(self):
@@ -130,6 +146,12 @@ class Handler(BaseHTTPRequestHandler):
                     self.life.tick()
                 else:
                     break
+            return self._send(200, self._json())
+        if parsed.path == "/api/new":
+            query = parse_qs(parsed.query)
+            seed = int((query.get("seed") or ["0"])[0])
+            policy = (query.get("policy") or [self.life.policy])[0]
+            self.life.reset_with_seed(seed, policy=policy)
             return self._send(200, self._json())
         if parsed.path == "/api/revive":
             try:

@@ -170,3 +170,20 @@ def test_personalities_produce_different_lifespans():
     averages = {p: sum(life_days(p, s) for s in range(12)) / 12 for p in POLICIES}
     spread = max(averages.values()) - min(averages.values())
     assert spread >= 2, "性格之间差异太小：%r" % averages
+
+
+def test_different_seeds_give_different_lives():
+    """分享链接的前提：种子不同，一生必须不同。"""
+    from jellyfish.core import default_world
+
+    lives = set()
+    for seed in (0, 7, 42, 99):
+        state = initial_state(seed)
+        for _ in range(15):
+            world = default_world(state["tick"], seed)
+            roll = ((state["tick"] * 2654435761 + seed) % 1000) / 1000.0
+            state, _ = step(state, world, roll, "balanced")
+            if not state["alive"]:
+                break
+        lives.add((state["tick"], state["eaten"], state["moved"]))
+    assert len(lives) >= 3, "不同种子几乎活成了一样：%r" % lives

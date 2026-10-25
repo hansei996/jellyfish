@@ -37,8 +37,8 @@ import json
 EAT_GAIN = 2
 MOVE_COST = 2
 IDLE_COST = 1
-START_ENERGY = 5
-MAX_ENERGY = 8
+START_ENERGY = 8
+MAX_ENERGY = 10
 
 
 def canon(value) -> str:
@@ -61,10 +61,22 @@ def initial_state(seed: int = 0) -> dict:
     }
 
 
+def _mix(a: int, b: int) -> int:
+    """把 (tick, seed) 混成一个伪随机数。
+
+    上一版用 (tick*3 + seed*13) % 7：种子差 7 的整数倍时模 7 结果相同，
+    于是 seed 0 / 7 / 42 得到了**完全相同的一生** —— 分享链接就没意义了。
+    """
+    x = ((a * 2654435761) ^ (b * 2246822519)) & 0xFFFFFFFF
+    x ^= x >> 13
+    x = (x * 1274126177) & 0xFFFFFFFF
+    x ^= x >> 16
+    return x
+
+
 def default_world(tick: int, seed: int = 0) -> dict:
-    """默认世界：食物是稀缺的，且随天数变化 —— 所以它真可能饿死。"""
-    # 注意：乘数不能等于模数，否则 (tick*7) % 7 恒为 0，食物永远是常数（这个 bug 真的发生过）
-    return {"food": 1 if ((tick * 3 + seed * 13) % 7) in (0, 1) else 0}
+    """默认世界：食物稀缺、随天数变化，且**不同种子给不同的世界**。"""
+    return {"food": 1 if _mix(tick + 1, seed) % 100 < 26 else 0}
 
 
 POLICIES = ("balanced", "frugal", "adventurous", "opportunist")
@@ -259,6 +271,23 @@ class Life:
             elif record["kind"] == "revive":
                 state = revive(state)
         return state
+
+    def reset_with_seed(self, seed: int, policy=None, name=None):
+        """换一只新的：清空日志，用新种子和（可选）新性格重新开始。
+
+        同一个 seed + 同一个 policy 会得到完全相同的一生 —— 这是「分享链接」的基础。
+        """
+        self.root.mkdir(parents=True, exist_ok=True)
+        if self.path.exists():
+            self.path.unlink()
+        self.seed = int(seed)
+        if policy:
+            self.policy = policy
+        if name:
+            self.name = name
+        self._state = None
+        self._records = None
+        return self.state()
 
     # -- 写 -------------------------------------------------------------
     def _append(self, record):
@@ -592,6 +621,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
 </style></head><body><div class="wrap">
 <h1 id="title">一只水母</h1>
 <p class="sub">它会饿、会死。每一步都写进 append-only 日志，可以倒回去重看。</p>
+<p class="sub" id="seedline"></p>
 
 <div class="stage"><svg id="jelly" width="220" height="260" viewBox="0 0 220 260">
   <defs><radialGradient id="g" cx="50%" cy="40%" r="60%">
@@ -609,6 +639,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
   <button class="primary" onclick="tick(1)">过一天</button>
   <button onclick="tick(5)">过五天</button>
   <button onclick="revive()">救活它</button>
+<button onclick="newLife()">换一只（新种子）</button>
 </div>
 
 <table><thead><tr><th>第几天</th><th>看到</th><th>决定</th><th>为什么</th><th>体力</th><th>状态</th></tr></thead>
@@ -616,6 +647,8 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4
 </div>
 <script>
 function render(d){
+  document.getElementById('seedline').textContent =
+    '种子 ' + d.seed + ' · 性格 ' + d.policy + ' · 同一个种子会得到完全相同的一生（可以把这个网址发给别人）';
   var s=d.state, alive=s.alive, e=s.energy;
   document.body.classList.toggle('dead', !alive);
   document.getElementById('title').textContent = d.name || '一只水母';
@@ -637,7 +670,18 @@ function render(d){
 function load(){ fetch('/api/state').then(r=>r.json()).then(render); }
 function tick(n){ fetch('/api/tick?n='+(n||1),{method:'POST'}).then(r=>r.json()).then(render); }
 function revive(){ fetch('/api/revive',{method:'POST'}).then(r=>r.json()).then(render); }
-load();
+function newLife(){
+  var seed = Math.floor(Math.random()*100000);
+  history.replaceState(null,'','?seed='+seed);
+  fetch('/api/new?seed='+seed,{method:'POST'}).then(r=>r.json()).then(render);
+}
+var params = new URLSearchParams(location.search);
+var wanted = params.get('seed');
+if (wanted !== null) {
+  fetch('/api/new?seed=' + encodeURIComponent(wanted), {method:'POST'}).then(r=>r.json()).then(render);
+} else {
+  load();
+}
 </script></body></html>"""
 
 
@@ -653,7 +697,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def _json(self):
-        return json.dumps({"name": self.life.name, "biography": self.life.biography(),
+        return json.dumps({"name": self.life.name, "seed": self.life.seed, "policy": str(self.life.policy),
+                           "biography": self.life.biography(),
                            "state": self.life.state(), "timeline": self.life.timeline()}, ensure_ascii=False)
 
     def do_GET(self):
@@ -677,6 +722,12 @@ class Handler(BaseHTTPRequestHandler):
                     self.life.tick()
                 else:
                     break
+            return self._send(200, self._json())
+        if parsed.path == "/api/new":
+            query = parse_qs(parsed.query)
+            seed = int((query.get("seed") or ["0"])[0])
+            policy = (query.get("policy") or [self.life.policy])[0]
+            self.life.reset_with_seed(seed, policy=policy)
             return self._send(200, self._json())
         if parsed.path == "/api/revive":
             try:

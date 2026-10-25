@@ -10,6 +10,7 @@
 
 ```bash
 python jellyfish.py serve        # → http://127.0.0.1:8080
+# 想复现别人的那一只？网址里带上种子：http://127.0.0.1:8080/?seed=42
 ```
 
 零依赖、零凭证、零网络。**单文件，复制走就能跑。**
@@ -38,10 +39,12 @@ python jellyfish.py serve        # → http://127.0.0.1:8080
 
 | policy | 中位寿命 | 最短/最长 | 性格 |
 |---|---|---|---|
-| `balanced` | 8 天 | 3 / 14 | 该吃吃该走走 |
-| `frugal` | 7 天 | 4 / 7 | 省着用，几乎不动 |
-| `adventurous` | 5 天 | 3 / 7 | 宁可多走，赌下一格有吃的 |
-| `opportunist` | 14 天 | 4 / 26 | 低位补仓，能囤就囤 |
+| `balanced` | 12 天 | 5 / 46 | 该吃吃该走走 |
+| `frugal` | 13 天 | 7 / 25 | 省着用，几乎不动 |
+| `adventurous` | 4 天 | 4 / 12 | 宁可多走，赌下一格有吃的 |
+| `opportunist` | 22 天 | 7 / 84 | 低位补仓，能囤就囤 |
+
+（数字来自 `python examples/03_compare.py`，40 个种子；改一行代码就会变，所以不手抄。）
 
 ```bash
 python jellyfish.py tick --root demo --name 阿水 --policy opportunist --times 40
@@ -81,7 +84,7 @@ def gambler(state, world, roll):
 state, record = step(state, world, roll, gambler)
 ```
 
-实测这只赌徒只能活 3 天（中位）——它在有吃的 85% 的时候选择继续走。
+实测这只赌徒只能活 4 天（中位）——它在有吃的 85% 的时候选择继续走。
 只要保持纯函数，**你的水母也能被完整重放**。
 
 ## 开发

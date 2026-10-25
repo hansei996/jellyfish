@@ -14,8 +14,8 @@ import json
 EAT_GAIN = 2
 MOVE_COST = 2
 IDLE_COST = 1
-START_ENERGY = 5
-MAX_ENERGY = 8
+START_ENERGY = 8
+MAX_ENERGY = 10
 
 
 def canon(value) -> str:
@@ -38,10 +38,22 @@ def initial_state(seed: int = 0) -> dict:
     }
 
 
+def _mix(a: int, b: int) -> int:
+    """把 (tick, seed) 混成一个伪随机数。
+
+    上一版用 (tick*3 + seed*13) % 7：种子差 7 的整数倍时模 7 结果相同，
+    于是 seed 0 / 7 / 42 得到了**完全相同的一生** —— 分享链接就没意义了。
+    """
+    x = ((a * 2654435761) ^ (b * 2246822519)) & 0xFFFFFFFF
+    x ^= x >> 13
+    x = (x * 1274126177) & 0xFFFFFFFF
+    x ^= x >> 16
+    return x
+
+
 def default_world(tick: int, seed: int = 0) -> dict:
-    """默认世界：食物是稀缺的，且随天数变化 —— 所以它真可能饿死。"""
-    # 注意：乘数不能等于模数，否则 (tick*7) % 7 恒为 0，食物永远是常数（这个 bug 真的发生过）
-    return {"food": 1 if ((tick * 3 + seed * 13) % 7) in (0, 1) else 0}
+    """默认世界：食物稀缺、随天数变化，且**不同种子给不同的世界**。"""
+    return {"food": 1 if _mix(tick + 1, seed) % 100 < 26 else 0}
 
 
 POLICIES = ("balanced", "frugal", "adventurous", "opportunist")

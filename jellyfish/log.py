@@ -70,6 +70,23 @@ class Life:
                 state = revive(state)
         return state
 
+    def reset_with_seed(self, seed: int, policy=None, name=None):
+        """换一只新的：清空日志，用新种子和（可选）新性格重新开始。
+
+        同一个 seed + 同一个 policy 会得到完全相同的一生 —— 这是「分享链接」的基础。
+        """
+        self.root.mkdir(parents=True, exist_ok=True)
+        if self.path.exists():
+            self.path.unlink()
+        self.seed = int(seed)
+        if policy:
+            self.policy = policy
+        if name:
+            self.name = name
+        self._state = None
+        self._records = None
+        return self.state()
+
     # -- 写 -------------------------------------------------------------
     def _append(self, record):
         record = dict(record)
