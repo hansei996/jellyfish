@@ -1,84 +1,75 @@
-# jellyfish
+![checks](https://github.com/hansei996/jellyfish/actions/workflows/checks.yml/badge.svg)
 
-**养一只会死的水母。它的一生可以被完整重放。**
+# jellyfish 🪼
 
-> Raise a jellyfish that can starve to death. Its whole life is a replayable log.
+**一只有寿命的水母。它的一生是一条可以倒回去重放的日志。**
+
+> A jellyfish you can starve to death — then rewind its entire life.
 
 ```bash
-python -m jellyfish serve        # → http://127.0.0.1:8080
+python jellyfish.py serve        # → http://127.0.0.1:8080
 ```
 
-零依赖、零凭证、零网络（纯 Python 标准库）。
+零依赖、零凭证、零网络。**单文件，复制走就能跑。**
 
-## 你会看到什么
-
-打开页面：一条能量条、每天它「看到什么 / 决定什么 / 为什么」，以及**它第几天会饿死**。
+## 屏幕上是什么
 
 ```text
-$ python -m jellyfish tick --root demo --name 小水母 --times 30
-{"tick": 18, "energy": 0, "alive": false,
- "death_reason": "饿死：第 18 个 tick 能量归零", "eaten": 6, "moved": 5}
+        .-~~~~~-.            ← 伞盖随体力缩放：饿了会瘪
+      /           \
+     |   一只水母   |         小水母 活了 10 天，第 10 天饿死。
+      \           /          它吃了 3 次，走了 4 次。
+       '-._____.-'
+        | | | | |            ← 触须；死后变灰下沉
 
-$ python -m jellyfish export --root demo --out life.html
-已导出 life.html        # 单文件，双击就开
+  [过一天] [过五天] [救活它]
 ```
 
-导出页顶部就是那句话：
+下面是一张时间轴：每天它**看到什么 / 决定什么 / 为什么 / 体力剩多少**。
 
-```text
-小水母 的一生
-小水母 活了 18 天，第 18 天饿死。它吃了 6 次，走了 5 次。
+## 四种性格，寿命不一样（实测中位寿命）
+
+| policy | 中位寿命 | 最短/最长 | 性格 |
+|---|---|---|---|
+| `balanced` | 8 天 | 3 / 14 | 该吃吃该走走 |
+| `frugal` | 7 天 | 4 / 7 | 省着用，几乎不动 |
+| `adventurous` | 5 天 | 3 / 7 | 宁可多走，赌下一格有吃的 |
+| `opportunist` | 14 天 | 4 / 26 | 低位补仓，能囤就囤 |
+
+```bash
+python jellyfish.py tick --root demo --name 阿水 --policy opportunist --times 40
+python jellyfish.py export --root demo --out life.html   # 单文件传记，双击就开
 ```
 
-不同种子活的天数不同（40 个种子实测：中位数 17 天，最短 3 天）。
+## 它凭什么可信
 
-## 为什么是这个形状
-
-| 特性 | 怎么做到的 |
+| 特性 | 怎么做到 |
 |---|---|
-| **决定论重放** | `step()` 是纯函数，随机值由调用方给出并写进日志；同一份日志永远重放出同一只水母 |
-| **会死** | 能量归零即饿死；死亡不可撤销（只能由人复活，复活也是一条日志） |
-| **可审计** | 每步记录观测、决策、理由、状态哈希；日志是 sha256 链，改一个字节立刻报错 |
-| **可分享** | `export` 生成单文件人生，不联网也能看 |
+| 决定论重放 | `step()` 是纯函数，随机值写进日志；同一份日志永远重放同一只水母 |
+| 会死 | 体力归零即饿死；**四种性格都会死**（有测试） |
+| 可审计 | 每步记录观测/决策/理由/状态哈希；日志是 sha256 链，改一个字节立刻报错 |
+| 可分享 | `export` 出单文件 HTML，不联网也能看 |
 
 ## 换成你自己的水母
 
-三个地方，都在 `jellyfish/core.py`：
+改 `jellyfish/core.py` 里两个函数：
 
-| 换什么 | 函数 | 例子 |
-|---|---|---|
-| 它看到什么 | `default_world()` | 天气、股价、你仓库的 commit 数 |
-| 它怎么决定 | `decide()` | LLM、规则、强化学习策略 |
-| 它怎么死 | `step()` 里的死亡条件 | 负债、超时、触到红线 |
-
-只要 `decide()` 保持纯函数、随机值走参数，**你的水母的一生也能被完整重放**。
-
-## 日志格式
-
-`life.jsonl`，一行一步：
-
-```json
-{"kind":"tick","world":{"food":1},"roll":0.42,"prev":null,"hash":"..."}
+```python
+def default_world(tick, seed=0):      # 它看到什么：天气、股价、你的 commit 数
+def decide_with(state, world, roll, policy):   # 它怎么决定：LLM / 规则 / RL
 ```
 
-- `prev` / `hash`：sha256 链
-- `roll`：这一 tick 的随机值 —— **必须在日志里**，否则不可重放
-- 状态不落盘：状态永远由日志重算
+只要 `decide_with` 保持纯函数、随机值走参数，**你的水母也能被完整重放**。
 
-## 边界
-
-- 不是游戏引擎：没渲染、没物理、没寻路
-- 不是 agent 框架：没工具调用、没 LLM（那是你要换的 decide）
-- 不预测未来：它只记录已经发生的一生
-
-## 测试
+## 开发
 
 ```bash
-python -m pytest tests -q     # 11 passed，全部离线
+python -m pytest tests -q        # 18 passed，全部离线
+python tools/build_single.py     # 重新生成 jellyfish.py（CI 会校验它没被手改）
 ```
 
-## English in one breath
+## English
 
-A jellyfish with a lifespan. It forages, starves, dies; you can rewind its entire life because every
-decision is a pure function of an append-only hash-chained log. Swap decide() or default_world() and
-it becomes your creature - still replayable. No deps, no keys, no network.
+A jellyfish with a lifespan: it forages, starves, dies. Every decision is a pure function of an
+append-only hash-chained log, so its whole life replays byte-for-byte. Swap `decide_with()` or
+`default_world()` and it becomes your creature — still replayable. Pure stdlib, single file, no keys.
