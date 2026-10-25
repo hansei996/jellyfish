@@ -24,7 +24,7 @@ def _force_utf8():
         except (ValueError, OSError):
             pass
 PKG = ROOT / "jellyfish"
-ORDER = ("textio.py", "core.py", "log.py", "export.py", "server.py")
+ORDER = ("textio.py", "core.py", "log.py", "export.py", "card.py", "server.py")
 HEADER = '''#!/usr/bin/env python3
 """jellyfish —— 养一只会死的水母。单文件版，零依赖。
 
@@ -37,10 +37,15 @@ HEADER = '''#!/usr/bin/env python3
 """
 '''
 STRIP = re.compile(r"^\s*(from \.|from jellyfish|import jellyfish)[^\n]*\n", re.M)
+# "from .card import write as write_card" 被删掉后，别名也得补回来
+ALIAS = re.compile(r"^\s*from \.[a-z_]+ import (\w+) as (\w+)\s*$", re.M)
 
 
 def strip_relative(text: str) -> str:
+    aliases = ["%s = %s" % (new, old) for old, new in ALIAS.findall(text)]
     text = STRIP.sub("", text)
+    if aliases:
+        text = "\n".join(aliases) + "\n" + text
     text = re.sub(r"^from __future__ import annotations\n", "", text, flags=re.M)
     return text
 

@@ -36,12 +36,18 @@ def main(argv=None):
     if cmd == "state":
         print(json.dumps(Life(root).state(), ensure_ascii=False, indent=2))
         return 0
+    if cmd == "card":
+        from .card import write as write_card
+
+        out = argv[argv.index("--out") + 1] if "--out" in argv else "card.svg"
+        print("已生成 " + write_card(Life(root, name=name, policy=policy), out))
+        return 0
     if cmd == "export":
         from .export import write_page
         out = argv[argv.index("--out") + 1] if "--out" in argv else "life.html"
         print("已导出 " + write_page(Life(root), out))
         return 0
-    print("用法：python -m jellyfish [serve|tick|state|export] [--root .life] [--port 8080]")
+    print("用法：python -m jellyfish [serve|tick|state|export|card] [--root .life] [--port 8080] [--name 名字] [--policy 性格]")
     return 2
 
 

@@ -12,6 +12,11 @@ python jellyfish.py serve        # → http://127.0.0.1:8080
 
 零依赖、零凭证、零网络。**单文件，复制走就能跑。**
 
+![一张真实的人生卡片](docs/example-card.svg)
+
+上面这张图是 `python jellyfish.py card --out card.svg` 生成的 —— **一条命令，零依赖，不需要浏览器截图**。
+卡片上带日志尾哈希，可以对回它的一生。
+
 ## 屏幕上是什么
 
 ```text
@@ -39,6 +44,7 @@ python jellyfish.py serve        # → http://127.0.0.1:8080
 ```bash
 python jellyfish.py tick --root demo --name 阿水 --policy opportunist --times 40
 python jellyfish.py export --root demo --out life.html   # 单文件传记，双击就开
+python jellyfish.py card   --root demo --out card.svg    # 1200x630 分享卡，可直接贴出去
 ```
 
 ## 它凭什么可信
