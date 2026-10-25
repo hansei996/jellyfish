@@ -26,8 +26,8 @@ jobs:
         run: python -m pytest tests -q
       - name: single file must be regenerable (no hand edits)
         run: |
-          python tools/build_single.py /tmp/regen.py 2>/dev/null || python tools/build_single.py regen.py
-          python -c "import sys,pathlib; a=pathlib.Path('regen.py'); b=pathlib.Path('jellyfish.py'); sys.exit('jellyfish.py 与生成结果不一致' if a.read_text(encoding='utf-8')!=b.read_text(encoding='utf-8') else 0)"
+          python tools/build_single.py regen.py
+          python -c "import sys,pathlib; a=pathlib.Path('regen.py'); b=pathlib.Path('jellyfish.py'); sys.exit('jellyfish.py does not match a fresh build' if a.read_text(encoding='utf-8')!=b.read_text(encoding='utf-8') else 0)"
       - name: single file runs standalone
         run: |
           python jellyfish.py tick --root ci-life --times 20
