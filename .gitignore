@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.life/
+demo/
+demo-life/
+serve-life/
+*.html
+!life.html
