@@ -38,6 +38,12 @@ curl -s https://raw.githubusercontent.com/hansei996/jellyfish/main/jellyfish.py 
 curl -sO https://raw.githubusercontent.com/hansei996/jellyfish/main/jellyfish.py
 python jellyfish.py serve
 ```
+| 硬指标 | 值 |
+|---|---|
+| 测试 | **47** 条，全部离线（`python tools/stats.py`） |
+| 第三方依赖 | **0**（只用标准库） |
+| 单文件 | **848 行 / 36.7 KB**，从包生成且逐字节可复现 |
+| CI | ubuntu + windows × py3.10 / 3.12 |
 ## 屏幕上是什么
 
 ```text
@@ -118,7 +124,7 @@ state, record = step(state, world, roll, gambler)
 ## 开发
 
 ```bash
-python -m pytest tests -q        # 39 passed，全部离线
+python -m pytest tests -q        # 47 passed，全部离线
 python tools/build_single.py     # 重新生成 jellyfish.py（CI 会校验它没被手改）
 python tools/preflight.py        # 推送前的四道闸门（我自己两次带着红测试推过，所以做成了脚本）
 ```
