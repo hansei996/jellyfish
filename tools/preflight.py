@@ -41,6 +41,13 @@ def run(args, cwd=None, timeout=300):
 
 
 def main() -> int:
+    import os
+
+    if os.environ.get("JELLYFISH_PREFLIGHT") == "1":
+        print("preflight 已经在跑了（检测到递归调用），本次直接通过")
+        return 0
+    os.environ["JELLYFISH_PREFLIGHT"] = "1"
+
     results = []
 
     code, out = run(["-m", "pytest", "tests", "-q"])

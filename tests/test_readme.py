@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 README = (ROOT / "README.md").read_text(encoding="utf-8")
 
 # 这些命令会在原地阻塞、递归或覆盖生成物，单测里跑不了（各自有别的测试覆盖）
-SKIP = ("serve", "pytest", "build_single.py")
+SKIP = ("serve", "pytest", "build_single.py", "preflight.py")  # preflight 自己会跑测试，读了它就会无限递归
 
 
 def commands():
