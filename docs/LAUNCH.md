@@ -18,6 +18,17 @@
 | 死亡瞬间 | 小水母 活了 10 天，第 10 天饿死。它吃了 3 次，走了 4 次。 | ✅ `python jellyfish.py export` |
 | 重放保证 | 改日志一个字节，重放立刻报错 | ✅ 有测试 |
 
+## 发布前自查清单（每条都能一条命令验证）
+
+- [x] README 首屏有图：`docs/example-card.svg`
+- [x] README 里的命令都能跑：`python -m pytest tests/test_readme.py -q`
+- [x] 陌生人不用凭证：`python jellyfish.py serve`（零依赖、零 key）
+- [x] 有可发的图：`python jellyfish.py card --out card.svg`
+- [x] 有可 fork 的路径：`docs/EXTEND.md` + `examples/03_compare.py`
+- [x] CI 四平台绿：`gh run list --repo hansei996/jellyfish --limit 1`
+- [ ] 社交预览图：仓库 Settings 里把 Social preview 设成 `docs/example-card.svg`（需要人点，1200×630 正好是 OG 尺寸）
+- [ ] 一句话简介：仓库 description 现在是中文，可换成英文以匹配 GitHub 搜索
+
 ## 投放点（按预期回报排序，都需要用户账号或确认）
 
 | 渠道 | 为什么可能有效 | 阻塞 |

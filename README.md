@@ -84,8 +84,14 @@ state, record = step(state, world, roll, gambler)
 ## 开发
 
 ```bash
-python -m pytest tests -q        # 18 passed，全部离线
+python -m pytest tests -q        # 26 passed，全部离线
 python tools/build_single.py     # 重新生成 jellyfish.py（CI 会校验它没被手改）
+```
+
+克隆仓库后也可以直接用包跑（不用单文件）：
+
+```bash
+python -m jellyfish tick --root demo --policy opportunist --times 30
 ```
 
 ## English
