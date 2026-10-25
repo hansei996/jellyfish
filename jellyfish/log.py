@@ -129,6 +129,18 @@ class Life:
         return "%s 活了 %d 天，第 %d 天饿死。它吃了 %d 次，走了 %d 次。" % (
             self.name, days, days, state["eaten"], state["moved"])
 
+    def adopt(self, dest_root, seed: int, ticks: int, name=None, policy=None):
+        """领养一只：把别人的那一只（同种子、同性格）重放到第 ticks 天，存成你自己的。
+
+        这就是「一键变成我那只」：不用改代码，只要种子和天数。
+        """
+        dest = Life(dest_root, seed=seed, name=name or self.name, policy=policy or self.policy)
+        for _ in range(max(0, int(ticks))):
+            if not dest.state()["alive"]:
+                break
+            dest.tick()
+        return dest
+
     def timeline(self):
         """给页面用：每一步的观测 → 决策 → 状态。"""
         out = []

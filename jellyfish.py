@@ -331,6 +331,18 @@ class Life:
         return "%s 活了 %d 天，第 %d 天饿死。它吃了 %d 次，走了 %d 次。" % (
             self.name, days, days, state["eaten"], state["moved"])
 
+    def adopt(self, dest_root, seed: int, ticks: int, name=None, policy=None):
+        """领养一只：把别人的那一只（同种子、同性格）重放到第 ticks 天，存成你自己的。
+
+        这就是「一键变成我那只」：不用改代码，只要种子和天数。
+        """
+        dest = Life(dest_root, seed=seed, name=name or self.name, policy=policy or self.policy)
+        for _ in range(max(0, int(ticks))):
+            if not dest.state()["alive"]:
+                break
+            dest.tick()
+        return dest
+
     def timeline(self):
         """给页面用：每一步的观测 → 决策 → 状态。"""
         out = []
@@ -798,6 +810,17 @@ def main(argv=None):
     if cmd == "state":
         print(json.dumps(Life(root).state(), ensure_ascii=False, indent=2))
         return 0
+    if cmd == "fork":
+        seed = int(argv[argv.index("--from-seed") + 1]) if "--from-seed" in argv else 0
+        ticks = int(argv[argv.index("--ticks") + 1]) if "--ticks" in argv else 0
+        dest_root = argv[argv.index("--to") + 1] if "--to" in argv else "my-life"
+        source = Life(root, name=name, policy=policy)
+        adopted = source.adopt(dest_root, seed=seed, ticks=ticks, name=name, policy=policy)
+        print("已领养：" + dest_root + "（种子 %d，第 %d 天）" % (seed, adopted.state()["tick"]))
+        print(adopted.biography())
+        print()
+        print("继续养：python -m jellyfish tick --root " + dest_root + " --name " + name + " --times 10")
+        return 0
     if cmd == "movie":
 
         out = argv[argv.index("--out") + 1] if "--out" in argv else "life-movie.svg"
@@ -812,7 +835,7 @@ def main(argv=None):
         out = argv[argv.index("--out") + 1] if "--out" in argv else "life.html"
         print("已导出 " + write_page(Life(root), out))
         return 0
-    print("用法：python -m jellyfish [serve|tick|state|export|card|movie] [--root .life] [--port 8080] [--name 名字] [--policy 性格]")
+    print("用法：python -m jellyfish [serve|tick|state|export|card|movie|fork] [--root .life] [--port 8080] [--name 名字] [--policy 性格]")
     return 2
 
 

@@ -71,6 +71,16 @@ python jellyfish.py card   --root demo --out card.svg    # 1200x630 分享卡，
 python jellyfish.py movie  --root demo --out demo.svg    # 会动的 SVG（GIF 的零依赖替代）
 ```
 
+## 一键变成我那只
+
+看到别人的水母，想接着养它：
+
+```bash
+python jellyfish.py fork --from-seed 42 --ticks 10 --name 我的水母 --to my-life
+# 已领养：my-life（种子 42，第 10 天）
+```
+
+同种子 + 同天数 = 完全相同的那一只（有测试）。之后它就是你的了，名字、后续都归你。
 ## 它凭什么可信
 
 | 特性 | 怎么做到 |

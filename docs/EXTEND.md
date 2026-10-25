@@ -65,6 +65,14 @@ python examples/03_compare.py
 
 赌是最短的活法——它在有吃的 85% 的情况里选择继续走。这就是「性格」在数据里的样子。
 
+## 领养别人的那一只（不改代码）
+
+```bash
+python jellyfish.py fork --from-seed 42 --ticks 10 --name 我的水母 --to my-life
+```
+
+等价于：用同样的种子和性格重放 10 天，存成你自己的日志。所以它和你从头养出来的一模一样。
+
 ## 怎么验证你的改动没破坏重放
 
 ```bash
