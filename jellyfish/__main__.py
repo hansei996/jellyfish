@@ -16,6 +16,7 @@ def main(argv=None):
         root = argv[argv.index("--root") + 1]
     if "--name" in argv:
         name = argv[argv.index("--name") + 1]
+    policy = argv[argv.index("--policy") + 1] if "--policy" in argv else "balanced"
     cmd = argv[0] if argv else "serve"
 
     if cmd == "serve":
@@ -23,7 +24,7 @@ def main(argv=None):
         serve(root, port=port)
         return 0
     if cmd == "tick":
-        life = Life(root, name=name)
+        life = Life(root, name=name, policy=policy)
         n = int(argv[argv.index("--times") + 1]) if "--times" in argv else 1
         for _ in range(n):
             if life.state()["alive"]:

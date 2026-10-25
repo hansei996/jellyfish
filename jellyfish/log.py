@@ -13,11 +13,12 @@ LOG_NAME = "life.jsonl"
 
 
 class Life:
-    def __init__(self, root=".life", seed=0, name="小水母"):
+    def __init__(self, root=".life", seed=0, name="小水母", policy="balanced"):
         self.root = Path(root)
         self.path = self.root / LOG_NAME
         self.seed = seed
         self.name = name
+        self.policy = policy
         self._state = None
         self._records = None
 
@@ -52,7 +53,7 @@ class Life:
             state = initial_state(self.seed)
             for record in self.records():
                 if record["kind"] == "tick":
-                    state, _ = step(state, record["world"], record["roll"])
+                    state, _ = step(state, record["world"], record["roll"], self.policy)
                 elif record["kind"] == "revive":
                     state = revive(state)
             self._state = state
@@ -88,7 +89,7 @@ class Life:
         world = world if world is not None else default_world(state["tick"], self.seed)
         if roll is None:
             roll = ((state["tick"] * 2654435761 + self.seed) % 1000) / 1000.0
-        new, _ = step(state, world, roll)
+        new, _ = step(state, world, roll, self.policy)
         record = self._append({"kind": "tick", "world": world, "roll": roll})
         self._state = new
         return record

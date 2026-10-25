@@ -18,46 +18,74 @@ from .log import Life
 PAGE = """<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>一个数字生命</title>
+<title>一只水母</title>
 <style>
-:root{--ink:#111;--dim:#777;--line:#e6e6e6;--ok:#1f7a3d;--bad:#b3261e}
+:root{--ink:#0b1b2b;--dim:#5b7288;--line:#dce7f0;--glow:#3ec6d8;--dead:#98a6b3}
 *{box-sizing:border-box}
-body{font:15px/1.6 -apple-system,Segoe UI,Microsoft YaHei,sans-serif;margin:0;color:var(--ink);background:#fafafa}
-header{padding:20px 24px 8px}
-h1{font-size:20px;margin:0 0 4px}
-.sub{color:var(--dim);font-size:13px}
-.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:12px 24px}
-.energy{font-size:34px;font-weight:700;letter-spacing:-1px}
-.bar{height:12px;background:#eee;border-radius:6px;overflow:hidden;margin:8px 0 4px}
-.bar>i{display:block;height:100%;background:var(--ok);transition:width .3s}
-.dead .bar>i{background:var(--bad)}
-button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin-right:8px}
-button:hover{background:#f2f2f2}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--dim);font-weight:600}
-tr.dead td{color:var(--bad)}
-code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#f3f3f3;padding:1px 5px;border-radius:4px}
-.banner{margin:0 24px;padding:10px 14px;border-radius:8px;background:#ffebee;color:var(--bad);font-weight:600}
-</style></head><body>
-<header><h1>一个数字生命</h1>
-<p class="sub">它会饿、会死、会被人复活。每一步都写进 append-only 日志，可以倒回去重看。</p></header>
-<div id="banner"></div>
-<div class="card" id="vitals"></div>
-<div class="card"><button onclick="tick()">推进一天</button><button onclick="tick(10)">推进十天</button><button onclick="revive()">复活它</button></div>
-<div class="card"><table><thead><tr><th>tick</th><th>看到什么</th><th>决定</th><th>为什么</th><th>能量</th><th>状态</th></tr></thead><tbody id="rows"></tbody></table></div>
+body{margin:0;font:15px/1.6 -apple-system,Segoe UI,Microsoft YaHei,sans-serif;color:var(--ink);
+background:radial-gradient(120% 80% at 50% 0%,#eaf7fb 0%,#f7fbfd 55%,#ffffff 100%);min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:19px;margin:0 0 2px;font-weight:650}
+.sub{color:var(--dim);font-size:13px;margin:0}
+.stage{position:relative;height:320px;margin:18px 0 6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#jelly{transition:opacity .8s, transform .8s}
+.dead #jelly{opacity:.28;transform:translateY(26px) scale(.86)}
+.bio{font-size:17px;line-height:1.7;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 14px}
+.bio.dead{border-color:#f0c9c9;background:#fff7f7;color:#9b2c2c}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+button{font:inherit;padding:9px 16px;border-radius:10px;border:1px solid #c9d8e4;background:#fff;cursor:pointer}
+button:hover{background:#f1f8fb}
+button.primary{background:#0b1b2b;color:#fff;border-color:#0b1b2b}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:600;background:#fbfdff}
+tr.dead td{color:#9b2c2c}
+code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#eef4f8;padding:1px 5px;border-radius:4px}
+.tick-n{color:var(--dim);font-variant-numeric:tabular-nums}
+</style></head><body><div class="wrap">
+<h1 id="title">一只水母</h1>
+<p class="sub">它会饿、会死。每一步都写进 append-only 日志，可以倒回去重看。</p>
+
+<div class="stage"><svg id="jelly" width="220" height="260" viewBox="0 0 220 260">
+  <defs><radialGradient id="g" cx="50%" cy="40%" r="60%">
+    <stop offset="0%" stop-color="#9fe8f3" stop-opacity=".95"/>
+    <stop offset="100%" stop-color="#3ec6d8" stop-opacity=".75"/></radialGradient></defs>
+  <ellipse id="bell" cx="110" cy="96" rx="66" ry="52" fill="url(#g)"/>
+  <g id="tent" stroke="#63d6e6" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85">
+    <path d="M78 140 q-8 34 6 62"/><path d="M98 146 q-6 40 4 74"/>
+    <path d="M122 146 q6 40 -4 74"/><path d="M142 140 q8 34 -6 62"/>
+  </g>
+</svg></div>
+
+<p class="bio" id="bio">…</p>
+<div class="row">
+  <button class="primary" onclick="tick(1)">过一天</button>
+  <button onclick="tick(5)">过五天</button>
+  <button onclick="revive()">救活它</button>
+</div>
+
+<table><thead><tr><th>第几天</th><th>看到</th><th>决定</th><th>为什么</th><th>体力</th><th>状态</th></tr></thead>
+<tbody id="rows"></tbody></table>
+</div>
 <script>
 function render(d){
-  const s=d.state;
-  document.body.classList.toggle('dead',!s.alive);
-  document.getElementById('banner').innerHTML = s.alive ? '' : '<div class="banner">它死了 —— '+s.death_reason+'</div>';
-  document.getElementById('vitals').innerHTML =
-    '<div class="energy">'+s.energy+' <span style="font-size:14px;font-weight:400;color:#777">能量</span></div>'+
-    '<div class="bar"><i style="width:'+Math.min(100,s.energy/12*100)+'%"></i></div>'+
-    '<div class="sub">第 '+s.tick+' 天 · '+(s.alive?'活着':'已死')+' · 吃过 '+s.eaten+' 次 · 走过 '+s.moved+' 次</div>';
-  const rows=d.timeline.slice().reverse().map(r=>
-    '<tr class="'+(r.alive?'':'dead')+'"><td>'+r.tick+'</td><td>食物 '+((r.world||{}).food??'-')+'</td><td><code>'+r.action+'</code></td><td>'+r.reason+'</td><td>'+r.energy+'</td><td>'+(r.alive?'活着':r.death_reason||'死了')+'</td></tr>').join('');
-  document.getElementById('rows').innerHTML = rows || '<tr><td colspan="6" class="sub">还没有任何一天。点「推进一天」。</td></tr>';
+  var s=d.state, alive=s.alive, e=s.energy;
+  document.body.classList.toggle('dead', !alive);
+  document.getElementById('title').textContent = d.name || '一只水母';
+  var bio=document.getElementById('bio');
+  bio.textContent = d.biography;
+  bio.classList.toggle('dead', !alive);
+  var bell=document.getElementById('bell');
+  var rx = 38 + Math.min(e,8)/8*34;
+  bell.setAttribute('rx', rx.toFixed(1));
+  bell.setAttribute('ry', (rx*0.78).toFixed(1));
+  document.getElementById('tent').setAttribute('stroke', alive? '#63d6e6' : '#b9c4cd');
+  var rows=d.timeline.slice().reverse().map(function(r){
+    return '<tr class="'+(r.alive?'':'dead')+'"><td class=tick-n>'+r.tick+'</td><td>食物 '+((r.world||{}).food)+'</td>'+
+      '<td><code>'+r.action+'</code></td><td>'+r.reason+'</td><td>'+r.energy+'</td>'+
+      '<td>'+(r.alive?'活着':(r.death_reason||'死了'))+'</td></tr>';
+  }).join('');
+  document.getElementById('rows').innerHTML = rows || '<tr><td colspan=6 class=sub>还没有任何一天。点「过一天」。</td></tr>';
 }
 function load(){ fetch('/api/state').then(r=>r.json()).then(render); }
 function tick(n){ fetch('/api/tick?n='+(n||1),{method:'POST'}).then(r=>r.json()).then(render); }
@@ -78,7 +106,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def _json(self):
-        return json.dumps({"state": self.life.state(), "timeline": self.life.timeline()}, ensure_ascii=False)
+        return json.dumps({"name": self.life.name, "biography": self.life.biography(),
+                           "state": self.life.state(), "timeline": self.life.timeline()}, ensure_ascii=False)
 
     def do_GET(self):
         parsed = urlparse(self.path)

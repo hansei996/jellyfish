@@ -127,3 +127,46 @@ def test_export_carries_the_name_and_the_biography(tmp_path):
     html = Path(write_page(life, tmp_path / "p.html")).read_text(encoding="utf-8")
     assert "小水母 的一生" in html
     assert life.biography() in html
+
+
+def test_food_actually_varies_over_time():
+    """真出过的事故：乘数等于模数时 (tick*7) % 7 恒为 0，世界永远是常数。"""
+    from jellyfish.core import default_world
+
+    values = {default_world(t, 0)["food"] for t in range(30)}
+    assert values == {0, 1}, "30 天内食物必须有/没有都出现过，否则世界是死的：%r" % values
+
+
+def test_no_policy_is_immortal():
+    """四种性格都必须会死 —— 否则「它会死」就只是个说法。"""
+    from jellyfish.core import POLICIES, default_world
+
+    for policy in POLICIES:
+        for seed in range(6):
+            state = initial_state(seed)
+            for _ in range(120):
+                world = default_world(state["tick"], seed)
+                roll = ((state["tick"] * 2654435761 + seed) % 1000) / 1000.0
+                state, _ = step(state, world, roll, policy)
+                if not state["alive"]:
+                    break
+            assert not state["alive"], "%s 在 seed %d 上活过了 120 天" % (policy, seed)
+
+
+def test_personalities_produce_different_lifespans():
+    """如果四种性格活一样久，性格就没有意义。"""
+    from jellyfish.core import POLICIES, default_world
+
+    def life_days(policy, seed):
+        state = initial_state(seed)
+        for _ in range(120):
+            world = default_world(state["tick"], seed)
+            roll = ((state["tick"] * 2654435761 + seed) % 1000) / 1000.0
+            state, _ = step(state, world, roll, policy)
+            if not state["alive"]:
+                break
+        return state["tick"]
+
+    averages = {p: sum(life_days(p, s) for s in range(12)) / 12 for p in POLICIES}
+    spread = max(averages.values()) - min(averages.values())
+    assert spread >= 2, "性格之间差异太小：%r" % averages

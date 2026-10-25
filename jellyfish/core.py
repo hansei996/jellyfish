@@ -40,7 +40,61 @@ def initial_state(seed: int = 0) -> dict:
 
 def default_world(tick: int, seed: int = 0) -> dict:
     """默认世界：食物是稀缺的，且随天数变化 —— 所以它真可能饿死。"""
-    return {"food": 1 if ((tick * 7 + seed * 13) % 5) in (0, 1) else 0}
+    # 注意：乘数不能等于模数，否则 (tick*7) % 7 恒为 0，食物永远是常数（这个 bug 真的发生过）
+    return {"food": 1 if ((tick * 3 + seed * 13) % 7) in (0, 1) else 0}
+
+
+POLICIES = ("balanced", "frugal", "adventurous", "opportunist")
+
+
+def decide_with(state: dict, world: dict, roll: float, policy: str = "balanced") -> dict:
+    """不同性格的水母，同一个世界。policy 决定它怎么权衡吃与走。"""
+    if not state["alive"]:
+        return {"action": "none", "reason": "已经死了，什么也做不了"}
+
+    food_here = world.get("food", 0)
+    energy = state["energy"]
+
+    if policy == "frugal":
+        # 节能型：只在很饿的时候才动，能蹭就蹭
+        if energy <= 2 and food_here > 0:
+            return {"action": "eat", "reason": "节能型：没能量了，眼前有吃的"}
+        if energy <= 2:
+            return {"action": "move", "reason": "节能型：快饿死了才肯走一趟"}
+        if food_here > 0 and roll < 0.5:
+            return {"action": "eat", "reason": "节能型：有吃的就顺手吃一口"}
+        return {"action": "idle", "reason": "节能型：不动最省能量"}
+
+    if policy == "adventurous":
+        # 冒险型：宁可多走，去赌下一格有吃的；但饿到 3 以下会先吃
+        if energy <= 3 and food_here > 0:
+            return {"action": "eat", "reason": "冒险型：快没劲了，有吃的先吃"}
+        if food_here > 0 and roll < 0.5:
+            return {"action": "eat", "reason": "冒险型：顺手吃一口再走"}
+        return {"action": "move", "reason": "冒险型：待着太无聊，去找更多"}
+
+    if policy == "opportunist":
+        # 投机型：能量低于中位线就囤，够吃就停
+        if energy <= 3 and food_here > 0:
+            return {"action": "eat", "reason": "投机型：低位补仓"}
+        if energy <= 3:
+            return {"action": "move", "reason": "投机型：低位没货，去找"}
+        if food_here > 0 and energy <= MAX_ENERGY - EAT_GAIN:
+            return {"action": "eat", "reason": "投机型：能囤就囤，别等涨"}
+        return {"action": "idle", "reason": "投机型：仓位够了，观望"}
+
+    # balanced：默认
+    if energy <= 2:
+        if food_here > 0:
+            return {"action": "eat", "reason": "能量 %d 快见底，眼前有食物" % energy}
+        return {"action": "move", "reason": "能量 %d 快见底，这里没吃的，得走" % energy}
+    if energy >= MAX_ENERGY - 1:
+        return {"action": "idle", "reason": "能量充足，先待着"}
+    if food_here > 0 and roll < 0.9:
+        return {"action": "eat", "reason": "有食物，吃的收益比探索大"}
+    if roll < 0.5:
+        return {"action": "move", "reason": "想换个地方看看有没有吃的"}
+    return {"action": "idle", "reason": "暂时不动"}
 
 
 def decide(state: dict, world: dict, roll: float) -> dict:
@@ -64,9 +118,9 @@ def decide(state: dict, world: dict, roll: float) -> dict:
     return {"action": "idle", "reason": "暂时不动"}
 
 
-def step(state: dict, world: dict, roll: float) -> tuple[dict, dict]:
+def step(state: dict, world: dict, roll: float, policy: str = "balanced") -> tuple[dict, dict]:
     """返回 (新状态, 这一步的记录)。纯函数。"""
-    decision = decide(state, world, roll)
+    decision = decide_with(state, world, roll, policy)
     new = json.loads(json.dumps(state))
     new["tick"] += 1
 
