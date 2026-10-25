@@ -23,6 +23,7 @@ def commands():
             line = line.strip()
             if not line.startswith("python "):
                 continue
+            line = line.split(" #")[0].strip()   # 行内注释是给人看的，不是命令的一部分
             if any(skip in line for skip in SKIP):
                 continue
             out.append(line)
