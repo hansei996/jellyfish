@@ -5,22 +5,8 @@ import json
 import sys
 
 from .log import Life
+from .textio import force_utf8
 from .server import serve
-
-
-def _force_utf8():
-    """钉成 UTF-8：Windows 控制台默认 cp936，脚本输出被父进程按 utf-8 读就是乱码。
-
-    这个坑在本项目的历史上已经踩过两次（校验器、查看器），所以 CLI 入口一律钉死。
-    """
-    for stream in (sys.stdout, sys.stderr):
-        reconfigure = getattr(stream, "reconfigure", None)
-        if reconfigure is None:
-            continue
-        try:
-            reconfigure(encoding="utf-8", errors="replace")
-        except (ValueError, OSError):
-            pass
 
 
 def main(argv=None):
@@ -60,5 +46,5 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    _force_utf8()
+    force_utf8()
     sys.exit(main())

@@ -50,3 +50,33 @@ def test_docs_mention_the_two_pure_function_rules():
     assert "不读时间" in text
     assert "不改" in text
     assert "examples/03_compare.py" in text
+
+
+def test_examples_emit_utf8_even_on_a_cp936_console():
+    """Windows 控制台默认 cp936 —— 剥掉 PYTHONIOENCODING 后仍必须能按 utf-8 解码。"""
+    import os
+
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONIOENCODING"}
+    for name in ("01_custom_world.py", "02_custom_policy.py", "03_compare.py"):
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "examples" / name)],
+            cwd=str(ROOT), capture_output=True, env=env,
+        )
+        assert proc.returncode == 0, name + " 在无编码变量时崩了：" + proc.stderr.decode("utf-8", "replace")
+        text = proc.stdout.decode("utf-8")  # 解不出来就说明没有钉 UTF-8
+        assert text.strip(), name + " 没有输出"
+
+
+def test_cli_emits_utf8_without_the_env_var(tmp_path):
+    import os
+
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONIOENCODING"}
+    env["PYTHONPATH"] = str(ROOT)
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "jellyfish.py"), "tick", "--root", str(tmp_path / "u"), "--times", "3"],
+        cwd=str(ROOT), capture_output=True, env=env,
+    )
+    assert proc.returncode == 0, proc.stderr.decode("utf-8", "replace")
+    import json
+
+    json.loads(proc.stdout.decode("utf-8").strip().splitlines()[-1])

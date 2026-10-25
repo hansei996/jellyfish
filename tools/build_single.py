@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PKG = ROOT / "jellyfish"
-ORDER = ("core.py", "log.py", "export.py", "server.py")
+ORDER = ("textio.py", "core.py", "log.py", "export.py", "server.py")
 HEADER = '''#!/usr/bin/env python3
 """jellyfish —— 养一只会死的水母。单文件版，零依赖。
 

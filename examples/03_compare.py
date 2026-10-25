@@ -11,6 +11,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from jellyfish.textio import force_utf8  # noqa: E402
+
+force_utf8()
+
 from jellyfish.core import POLICIES, default_world, initial_state, step  # noqa: E402
 
 
