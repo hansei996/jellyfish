@@ -67,3 +67,36 @@
 
 - 每 24 小时读一次 traffic 与 star，写进 `docs/LAUNCH-LOG.md`
 - 不刷、不求 star、不互 star
+---
+
+# 需要你动手的 4 步（我全权做不了的部分）
+
+| # | 做什么 | 具体位置 | 耗时 |
+|---|---|---|---|
+| 1 | 设社交预览图 | 仓库 Settings → Social preview → 上传 `docs/example-card.svg`（若 GitHub 不收 SVG，先截图成 PNG，1200×630） | 1 分钟 |
+| 2 | 选一个渠道发第一帖 | 见下方「首帖模板」，HN / Reddit / V2EX 任选一个 | 5 分钟 |
+| 3 | 发完把链接给我 | 我用 `tools/traffic.py` 记每天的数 | 10 秒 |
+| 4 | 48 小时后一起看数 | `docs/LAUNCH-LOG.md` | 2 分钟 |
+
+## 首帖模板（英文，HN / Reddit 用）
+
+标题：**Show HN: A jellyfish with a lifespan, whose whole life replays from a hash-chained log**
+
+正文：
+
+> I wanted a tiny thing that makes agent state auditable in a way you can actually watch.
+> So it's a jellyfish: it forages, starves, dies. Every tick writes one line to an append-only
+> sha256-chained log, and its state is a pure function of that log - so its whole life replays
+> byte-for-byte, and tampering with one byte is detected immediately.
+>
+> Swap `decide_with()` or `default_world()` and it becomes your creature, still replayable.
+> Pure stdlib, single file, no API keys: `curl -s <raw url> | python - tick --times 30`.
+>
+> What I'm unsure about: whether 'a life that can die' is actually more engaging than a dashboard,
+> or just a gimmick. Feedback welcome.
+
+## 首帖模板（中文，V2EX / 即刻 / B站动态）
+
+> 写了个小东西：一只会死的水母。它每天决定吃还是走，体力归零就饿死。
+> 有意思的是它的一生是一条 sha256 链的日志 —— 任何一天的状态都能重算，所以可以倒回去重看，
+> 也可以换个种子再养一只（同一个种子一定是同一只）。单文件、零依赖、不用任何 key。
