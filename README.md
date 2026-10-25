@@ -2,6 +2,8 @@
 
 # jellyfish 🪼
 
+![一只水母的一生：伞盖随体力收缩，最后饿死](docs/demo.svg)
+
 **一只有寿命的水母。它的一生是一条可以倒回去重放的日志。**
 
 > A jellyfish you can starve to death — then rewind its entire life.
@@ -45,6 +47,7 @@ python jellyfish.py serve        # → http://127.0.0.1:8080
 python jellyfish.py tick --root demo --name 阿水 --policy opportunist --times 40
 python jellyfish.py export --root demo --out life.html   # 单文件传记，双击就开
 python jellyfish.py card   --root demo --out card.svg    # 1200x630 分享卡，可直接贴出去
+python jellyfish.py movie  --root demo --out demo.svg    # 会动的 SVG（GIF 的零依赖替代）
 ```
 
 ## 它凭什么可信

@@ -24,7 +24,7 @@ def _force_utf8():
         except (ValueError, OSError):
             pass
 PKG = ROOT / "jellyfish"
-ORDER = ("textio.py", "core.py", "log.py", "export.py", "card.py", "server.py")
+ORDER = ("textio.py", "core.py", "log.py", "export.py", "card.py", "movie.py", "server.py")
 HEADER = '''#!/usr/bin/env python3
 """jellyfish —— 养一只会死的水母。单文件版，零依赖。
 
