@@ -11,6 +11,18 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _force_utf8():
+    """这个脚本自己也打印中文，Windows 上同样会被 cp936 打崩。"""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
 PKG = ROOT / "jellyfish"
 ORDER = ("textio.py", "core.py", "log.py", "export.py", "server.py")
 HEADER = '''#!/usr/bin/env python3
@@ -58,4 +70,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    _force_utf8()
     sys.exit(main(sys.argv[1:]))
